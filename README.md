@@ -6,7 +6,7 @@
 npm install @pedrobef/navebox
 ```
 
-> Versão `0.2.0`. O modo Preview é pequeno e próprio. O modo Node usa um kernel de compatibilidade mantido no repositório (derivado sob MIT do projeto almostnode). Para Node 22 compilado em WebAssembly, existe um provider opcional BrowserPod que requer a chave/licença do próprio usuário.
+> Versão `0.2.1`. O modo Preview é pequeno e próprio. O modo Node usa um kernel de compatibilidade mantido no repositório (derivado sob MIT do projeto almostnode). Para Node 22 compilado em WebAssembly, existe um provider opcional BrowserPod que requer a chave/licença do próprio usuário.
 
 ## Dois modos
 

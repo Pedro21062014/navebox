@@ -1,0 +1,54 @@
+services:
+  runner:
+    build:
+      context: ..
+      dockerfile: runner/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8787:8787"
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 8787
+      NAVEBOX_PUBLIC_ORIGIN: ${NAVEBOX_PUBLIC_ORIGIN:-http://localhost:8787}
+      NAVEBOX_API_TOKEN: ${NAVEBOX_API_TOKEN:?define NAVEBOX_API_TOKEN}
+      NAVEBOX_ALLOWED_ORIGINS: ${NAVEBOX_ALLOWED_ORIGINS:-http://localhost:5173}
+      NAVEBOX_SANDBOX: docker
+      NAVEBOX_DATA_DIR: /data
+      NAVEBOX_LOCAL_ARTIFACTS: /data/artifacts
+      NAVEBOX_STORAGE: ${NAVEBOX_STORAGE:-local}
+      SUPABASE_URL: ${SUPABASE_URL:-}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY:-}
+      SUPABASE_BUCKET: ${SUPABASE_BUCKET:-navebox-deployments}
+      DOCKER_HOST: tcp://docker:2375
+    volumes:
+      - navebox-data:/data
+    depends_on:
+      docker:
+        condition: service_healthy
+    networks: [navebox]
+
+  # Isolated Docker daemon. /data is mounted at the same path so preview bind mounts resolve.
+  docker:
+    image: docker:28-dind
+    privileged: true
+    restart: unless-stopped
+    environment:
+      DOCKER_TLS_CERTDIR: ""
+    command: ["--host=tcp://0.0.0.0:2375", "--tls=false"]
+    volumes:
+      - docker-data:/var/lib/docker
+      - navebox-data:/data
+    healthcheck:
+      test: ["CMD", "docker", "info"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks: [navebox]
+
+volumes:
+  navebox-data:
+  docker-data:
+
+networks:
+  navebox:

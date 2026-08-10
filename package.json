@@ -1,0 +1,99 @@
+{
+  "name": "@pedrobef/navebox",
+  "version": "0.2.0",
+  "description": "Dois runtimes no navegador: preview WebAssembly leve e ambiente Node com npm, APIs, Next, terminal e deploy opcional.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Pedro Berbis Freire",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Pedro21062014/navebox.git"
+  },
+  "homepage": "https://github.com/Pedro21062014/navebox#readme",
+  "bugs": {
+    "url": "https://github.com/Pedro21062014/navebox/issues"
+  },
+  "workspaces": [
+    "runner"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "files": [
+    "lib",
+    "README.md",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md",
+    "src/kernel/LICENSE.almostnode"
+  ],
+  "main": "./lib/navebox.js",
+  "module": "./lib/navebox.js",
+  "types": "./lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "import": "./lib/navebox.js"
+    },
+    "./style.css": "./lib/navebox.css",
+    "./navebox-sw.js": "./lib/navebox-sw.js"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "dev": "vite --config vite.demo.config.ts --host 0.0.0.0",
+    "dev:runner": "npm --workspace @pedrobef/navebox-runner run dev",
+    "build:client": "vite build --config vite.config.ts && vite build --config vite.plugin.config.ts && tsc -p tsconfig.build.json",
+    "build:runner": "npm --workspace @pedrobef/navebox-runner run build",
+    "build": "npm run build:client && npm run build:runner",
+    "typecheck:client": "tsc --noEmit",
+    "typecheck:runner": "npm --workspace @pedrobef/navebox-runner run typecheck",
+    "typecheck": "npm run typecheck:client && npm run typecheck:runner",
+    "test": "vitest run",
+    "test:unit": "vitest run",
+    "test:e2e": "playwright test",
+    "test:watch": "vitest",
+    "check": "npm run typecheck && npm run test && npm run build",
+    "pack:local": "npm run check && npm pack --pack-destination ./release"
+  },
+  "keywords": [
+    "browser-runtime",
+    "web-container",
+    "react-playground",
+    "browser-ide",
+    "node-sandbox",
+    "nextjs",
+    "deployment"
+  ],
+  "dependencies": {
+    "@leaningtech/browserpod": "^2.18.0",
+    "acorn": "^8.15.0",
+    "acorn-jsx": "^5.3.2",
+    "brotli-wasm": "^3.0.1",
+    "comlink": "^4.4.2",
+    "css-tree": "^3.1.0",
+    "esbuild-wasm": "^0.28.2",
+    "just-bash": "^2.7.0",
+    "pako": "^2.1.0",
+    "resolve.exports": "^2.0.3"
+  },
+  "peerDependencies": {
+    "react": ">=18.2.0",
+    "react-dom": ">=18.2.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.2",
+    "@types/css-tree": "^3.2.0",
+    "@types/node": "^24.0.0",
+    "@types/pako": "^3.0.0",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "@vitejs/plugin-react": "^6.0.5",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "typescript": "^5.9.3",
+    "vite": "^8.2.1",
+    "vitest": "^4.1.10"
+  }
+}

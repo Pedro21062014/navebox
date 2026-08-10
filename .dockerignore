@@ -1,0 +1,13 @@
+.git
+.github
+node_modules
+lib
+release
+coverage
+playwright-report
+test-results
+runner/data
+runner/lib
+.env
+*.log
+*.png

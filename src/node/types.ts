@@ -27,6 +27,10 @@ export interface BrowserNodeEnvironmentOptions {
   browserPodStorageKey?: string;
   /** Service Worker emitted by the Navebox Vite plugin or copied from the package. */
   serviceWorkerUrl?: string;
+  /** URL of the precompiled Node kernel. The Vite plugin serves /navebox-runtime/kernel.js. */
+  kernelUrl?: string;
+  /** Advanced custom loader, useful for non-Vite hosts and source-level tests. */
+  kernelLoader?: () => Promise<unknown>;
   /** Required for the local compatibility provider. Only execute trusted projects on the same origin. */
   allowTrustedSameOrigin?: boolean;
   cwd?: string;

@@ -158,7 +158,7 @@ export class NaveboxShell {
 
   private async npm(args: string[]): Promise<ShellResult> {
     const subcommand = args.shift();
-    if (!subcommand) return { lines: [line('stdout', 'Navebox package bridge 0.2.0')] };
+    if (!subcommand) return { lines: [line('stdout', 'Navebox package bridge 0.2.1')] };
 
     if (subcommand === 'install' || subcommand === 'i' || subcommand === 'add') {
       return this.installPackages(args.filter((arg) => !arg.startsWith('-')));

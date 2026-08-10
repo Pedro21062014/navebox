@@ -82,6 +82,7 @@ export function Navebox({
   const terminalInputRef = useRef<HTMLInputElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const nodeEngineRef = useRef<BrowserNodeEngine | null>(null);
+  const nodeEngineBootRef = useRef<Promise<BrowserNodeEngine> | null>(null);
   const nodeOptionsRef = useRef<BrowserNodeEnvironmentOptions>(nodeOptions ?? {});
   const nodeLineSequence = useRef(50_000);
   const autoRunTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -149,7 +150,9 @@ export function Navebox({
     if (reset && nodeEngineRef.current) {
       await nodeEngineRef.current.stop().catch(() => undefined);
       nodeEngineRef.current = null;
+      nodeEngineBootRef.current = null;
     }
+    if (nodeEngineBootRef.current) return nodeEngineBootRef.current;
     if (nodeEngineRef.current) return nodeEngineRef.current;
 
     const engine = createBrowserNodeEngine(nodeOptionsRef.current);
@@ -161,8 +164,18 @@ export function Navebox({
     });
     engine.onServer((server) => setNodeServer(server));
     setNodeTerminalLines([]);
-    await engine.boot(runtime.fileSystem.snapshot().map(({ path, content }) => ({ path, content })));
-    return engine;
+
+    const boot = engine.boot(runtime.fileSystem.snapshot().map(({ path, content }) => ({ path, content })))
+      .then(() => engine)
+      .catch((error) => {
+        if (nodeEngineRef.current === engine) {
+          nodeEngineRef.current = null;
+          nodeEngineBootRef.current = null;
+        }
+        throw error;
+      });
+    nodeEngineBootRef.current = boot;
+    return boot;
   }, [appendNodeTerminal, runtime]);
 
   const run = useCallback(async () => {

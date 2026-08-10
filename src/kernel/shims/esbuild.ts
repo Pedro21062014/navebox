@@ -4,7 +4,7 @@
  */
 
 import type { VirtualFS } from '../virtual-fs';
-import { ESBUILD_WASM_BINARY_CDN, ESBUILD_WASM_BROWSER_CDN } from '../config/cdn';
+import { getEsbuildRuntime, LOCAL_ESBUILD_WASM_URL } from '../esbuild-runtime';
 
 /**
  * Node.js built-in module names. Used by the VFS plugin to provide empty stubs
@@ -410,7 +410,7 @@ function resolveMainImport(
 // State
 let esbuildInstance: typeof import('esbuild-wasm') | null = null;
 let initPromise: Promise<void> | null = null;
-let wasmURL = ESBUILD_WASM_BINARY_CDN;
+let wasmURL = LOCAL_ESBUILD_WASM_URL;
 let globalVFS: VirtualFS | null = null;
 
 /**
@@ -457,17 +457,7 @@ export async function initialize(options?: { wasmURL?: string }): Promise<void> 
 
   initPromise = (async () => {
     try {
-      // Dynamically import esbuild-wasm from CDN
-      const esbuild = await import(
-        /* @vite-ignore */
-        ESBUILD_WASM_BROWSER_CDN
-      );
-
-      await esbuild.initialize({
-        wasmURL: options?.wasmURL || wasmURL,
-      });
-
-      esbuildInstance = esbuild;
+      esbuildInstance = await getEsbuildRuntime(options?.wasmURL || wasmURL);
     } catch (error) {
       initPromise = null;
       throw new Error(`Failed to initialize esbuild-wasm: ${error}`);

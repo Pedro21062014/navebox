@@ -6,7 +6,7 @@
  */
 
 import { VirtualFS } from './virtual-fs';
-import { ESBUILD_WASM_ESM_CDN, ESBUILD_WASM_BINARY_CDN } from './config/cdn';
+import { getEsbuildRuntime } from './esbuild-runtime';
 
 // Check if we're in a browser environment
 const isBrowser = typeof window !== 'undefined';
@@ -17,59 +17,13 @@ const isBrowser = typeof window !== 'undefined';
  * Initialize esbuild-wasm (reuses existing instance if already initialized)
  */
 export async function initTransformer(): Promise<void> {
-  // Skip in non-browser environments (tests)
   if (!isBrowser) {
     console.log('[transform] Skipping esbuild init (not in browser)');
     return;
   }
-
-  // Reuse existing esbuild instance from window (may have been initialized by next-dev-server)
-  if (window.__esbuild) {
-    console.log('[transform] Reusing existing esbuild instance');
-    return;
-  }
-
-  // If another init is in progress, wait for it
-  if (window.__esbuildInitPromise) {
-    return window.__esbuildInitPromise;
-  }
-
-  window.__esbuildInitPromise = (async () => {
-    try {
-      console.log('[transform] Loading esbuild-wasm...');
-
-      // Load esbuild-wasm from CDN
-      const mod = await import(
-        /* @vite-ignore */
-        ESBUILD_WASM_ESM_CDN
-      );
-
-      // esm.sh wraps the module - get the actual esbuild object
-      const esbuildMod = mod.default || mod;
-
-      try {
-        await esbuildMod.initialize({
-          wasmURL: ESBUILD_WASM_BINARY_CDN,
-        });
-        console.log('[transform] esbuild-wasm initialized');
-      } catch (initError) {
-        // Handle "already initialized" error gracefully
-        if (initError instanceof Error && initError.message.includes('Cannot call "initialize" more than once')) {
-          console.log('[transform] esbuild-wasm already initialized, reusing');
-        } else {
-          throw initError;
-        }
-      }
-
-      window.__esbuild = esbuildMod;
-    } catch (error) {
-      console.error('[transform] Failed to initialize esbuild:', error);
-      window.__esbuildInitPromise = undefined;
-      throw error;
-    }
-  })();
-
-  return window.__esbuildInitPromise;
+  console.log('[transform] Loading local esbuild-wasm…');
+  await getEsbuildRuntime();
+  console.log('[transform] esbuild-wasm initialized');
 }
 
 /**

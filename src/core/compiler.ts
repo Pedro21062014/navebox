@@ -31,7 +31,7 @@ export class BrowserCompiler {
 
   constructor(options: CompilerOptions = {}) {
     this.cdnBaseUrl = (options.cdnBaseUrl ?? 'https://esm.sh').replace(/\/$/, '');
-    this.wasmUrl = options.wasmUrl ?? 'https://unpkg.com/esbuild-wasm@0.28.2/esbuild.wasm';
+    this.wasmUrl = options.wasmUrl ?? '/navebox-runtime/esbuild.wasm';
     this.development = options.development ?? true;
   }
 

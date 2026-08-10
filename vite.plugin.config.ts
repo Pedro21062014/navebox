@@ -12,7 +12,7 @@ export default defineConfig({
       fileName: () => 'vite-plugin.js',
     },
     rollupOptions: {
-      external: ['vite', 'node:fs', 'node:path', 'node:url'],
+      external: ['vite', 'node:fs', 'node:path', 'node:url', 'node:module'],
     },
   },
 });

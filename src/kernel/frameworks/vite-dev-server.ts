@@ -8,7 +8,8 @@ import { VirtualFS } from '../virtual-fs';
 import { Buffer } from '../shims/stream';
 import { simpleHash } from '../utils/hash';
 import { addReactRefresh as _addReactRefresh } from './code-transforms';
-import { ESBUILD_WASM_ESM_CDN, ESBUILD_WASM_BINARY_CDN, REACT_REFRESH_CDN, REACT_CDN, REACT_DOM_CDN } from '../config/cdn';
+import { REACT_REFRESH_CDN, REACT_CDN, REACT_DOM_CDN } from '../config/cdn';
+import { getEsbuildRuntime } from '../esbuild-runtime';
 
 // Check if we're in a real browser environment (not jsdom or Node.js)
 // jsdom has window but doesn't have ServiceWorker or SharedArrayBuffer
@@ -24,50 +25,8 @@ const isBrowser = typeof window !== 'undefined' &&
  */
 async function initEsbuild(): Promise<void> {
   if (!isBrowser) return;
-
-  // Check if already initialized (survives HMR)
-  if (window.__esbuild) {
-    return;
-  }
-
-  // Check if initialization is in progress
-  if (window.__esbuildInitPromise) {
-    return window.__esbuildInitPromise;
-  }
-
-  window.__esbuildInitPromise = (async () => {
-    try {
-      const mod = await import(
-        /* @vite-ignore */
-        ESBUILD_WASM_ESM_CDN
-      );
-
-      const esbuildMod = mod.default || mod;
-
-      try {
-        await esbuildMod.initialize({
-          wasmURL: ESBUILD_WASM_BINARY_CDN,
-        });
-        console.log('[ViteDevServer] esbuild-wasm initialized');
-      } catch (initError) {
-        // If esbuild is already initialized (e.g., from a previous HMR cycle),
-        // the WASM is still loaded and the module is usable
-        if (initError instanceof Error && initError.message.includes('Cannot call "initialize" more than once')) {
-          console.log('[ViteDevServer] esbuild-wasm already initialized, reusing');
-        } else {
-          throw initError;
-        }
-      }
-
-      window.__esbuild = esbuildMod;
-    } catch (error) {
-      console.error('[ViteDevServer] Failed to initialize esbuild:', error);
-      window.__esbuildInitPromise = undefined;
-      throw error;
-    }
-  })();
-
-  return window.__esbuildInitPromise;
+  await getEsbuildRuntime();
+  console.log('[ViteDevServer] local esbuild-wasm initialized');
 }
 
 /**

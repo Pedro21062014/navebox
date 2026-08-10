@@ -5,7 +5,7 @@
 
 // ── Version pins ──
 export const REACT_VERSION = '18.2.0';
-export const ESBUILD_WASM_VERSION = '0.20.0';
+export const ESBUILD_WASM_VERSION = '0.28.2';
 export const ROLLUP_BROWSER_VERSION = '4.9.0';
 export const REACT_REFRESH_VERSION = '0.14.0';
 

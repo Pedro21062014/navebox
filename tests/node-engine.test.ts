@@ -6,6 +6,7 @@ import { Runtime } from '../src/kernel/runtime';
 import { VirtualFS } from '../src/kernel/virtual-fs';
 
 describe('Navebox browser Node kernel', () => {
+  const kernelLoader = () => import('../src/kernel/index');
   let engine: CompatNodeEngine | undefined;
 
   afterEach(async () => {
@@ -32,7 +33,7 @@ describe('Navebox browser Node kernel', () => {
   });
 
   it('sobe uma API HTTP real e atende JSON pelo bridge', async () => {
-    engine = new CompatNodeEngine({ allowTrustedSameOrigin: true });
+    engine = new CompatNodeEngine({ allowTrustedSameOrigin: true, kernelLoader });
     await engine.boot(getTemplate('node-api').files);
     const server = await engine.start();
 
@@ -51,7 +52,7 @@ describe('Navebox browser Node kernel', () => {
   }, 30_000);
 
   it('executa terminal POSIX no mesmo filesystem', async () => {
-    engine = new CompatNodeEngine({ allowTrustedSameOrigin: true });
+    engine = new CompatNodeEngine({ allowTrustedSameOrigin: true, kernelLoader });
     await engine.boot(getTemplate('node-api').files);
     const result = await engine.run('cat', ['/project/data/message.txt']);
     expect(result.exitCode).toBe(0);

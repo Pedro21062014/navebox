@@ -117,7 +117,7 @@ export async function buildServer(options: BuildServerOptions = {}): Promise<Fas
 
   app.get('/', async () => ({
     name: 'Navebox Runner',
-    version: '0.2.0',
+    version: '0.2.1',
     docs: '/v1',
     sandbox: sandbox.kind,
     storage: artifacts.kind,

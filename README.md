@@ -55,6 +55,36 @@ export default function Playground() {
 
 O plugin serve `navebox-sw.js`, copia o arquivo no build e adiciona COOP/COEP para WebAssembly threads.
 
+### Integração sem estourar o heap do Vite
+
+Desde `0.2.1`, o kernel Node **não participa do grafo de módulos do aplicativo**. Ele é compilado uma vez pelo Navebox e distribuído como runtime opaco:
+
+```text
+node_modules/@pedrobef/navebox/lib/runtime/
+  kernel.js
+  chunks/*
+# esbuild.wasm vem da dependência e é copiado pelo plugin
+```
+
+`naveboxPlugin()`:
+
+- exclui o pacote de `optimizeDeps`;
+- serve o kernel e `esbuild.wasm` em `/navebox-runtime/` durante desenvolvimento;
+- apenas copia os arquivos pré-compilados para `dist/navebox-runtime/` na produção;
+- impede que Rollup/Rolldown/esbuild analisem ou minifiquem novamente o kernel.
+
+O teste de consumidor cria um projeto Vite limpo, instala o tarball e executa o build com:
+
+```bash
+NODE_OPTIONS=--max-old-space-size=256 vite build
+```
+
+O build transforma apenas o aplicativo, mantém o kernel fora de `dist/assets` e falha no CI se ele voltar a ser empacotado. Para outro bundler ou CDN, configure manualmente:
+
+```tsx
+<Navebox nodeOptions={{ kernelUrl: 'https://cdn.example/navebox-runtime/kernel.js' }} />
+```
+
 ## APIs dentro do navegador
 
 Selecione o template **Node API** e o modo **Node**. O projeto executa de verdade:
@@ -232,6 +262,7 @@ npm run typecheck
 npm test            # 47 testes unitários/integração
 npm run test:e2e    # 5 testes Chromium
 npm run build
+npm run test:consumer # integração Vite real com heap de 256 MB
 ```
 
 Cobertura funcional validada:
@@ -264,7 +295,7 @@ Crie no ambiente GitHub **npm** a secret:
 NPM_TOKEN=seu-token-de-automação-npm
 ```
 
-Depois publique uma GitHub Release cujo tag corresponda ao `package.json`, por exemplo `v0.2.0`, ou execute manualmente o workflow **Publish npm**.
+Depois publique uma GitHub Release cujo tag corresponda ao `package.json`, por exemplo `v0.2.1`, ou execute manualmente o workflow **Publish npm**.
 
 ## Desenvolvimento
 

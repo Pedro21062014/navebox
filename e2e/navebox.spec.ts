@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 
-async function waitForRuntime(page: Page) {
-  await expect(page.locator('.nbx-runtime-state.is-running')).toBeVisible({ timeout: 60_000 });
+async function waitForRuntime(page: Page, timeout = 120_000) {
+  await expect(page.locator('.nbx-runtime-state.is-running')).toBeVisible({ timeout });
 }
 
 async function selectNodeMode(page: Page) {

@@ -17,7 +17,7 @@ function Demo() {
           <a href="#architecture">Arquitetura</a>
           <a href="https://www.npmjs.com" target="_blank" rel="noreferrer">npm ↗</a>
         </div>
-        <span className="demo-version">v0.2.0 dual runtime</span>
+        <span className="demo-version">v0.2.1 opaque runtime</span>
       </nav>
 
       <header className="demo-hero" id="top">
@@ -47,7 +47,11 @@ function Demo() {
         <Navebox
           initialTemplate="react"
           height={760}
-          nodeOptions={{ allowTrustedSameOrigin: true, serviceWorkerUrl: '/navebox-sw.js' }}
+          nodeOptions={{
+            allowTrustedSameOrigin: true,
+            serviceWorkerUrl: '/navebox-sw.js',
+            kernelUrl: '/src/kernel/index.ts',
+          }}
         />
       </main>
 

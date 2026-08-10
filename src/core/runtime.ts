@@ -86,7 +86,7 @@ export class NaveboxRuntime extends TypedEmitter<RuntimeEvents> {
       this.emitState();
     });
 
-    this.pushTerminal('info', 'Navebox browser runtime 0.2.0');
+    this.pushTerminal('info', 'Navebox browser runtime 0.2.1');
     this.pushTerminal('muted', 'Filesystem virtual montado em / · digite “help” para comandos.');
   }
 

@@ -1,6 +1,6 @@
 {
   "name": "@pedrobef/navebox",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Dois runtimes no navegador: preview WebAssembly leve e ambiente Node com npm, APIs, Next, terminal e deploy opcional.",
   "type": "module",
   "license": "MIT",
@@ -22,6 +22,7 @@
   "files": [
     "lib",
     "README.md",
+    "CHANGELOG.md",
     "LICENSE",
     "THIRD_PARTY_NOTICES.md",
     "src/kernel/LICENSE.almostnode"
@@ -35,7 +36,12 @@
       "import": "./lib/navebox.js"
     },
     "./style.css": "./lib/navebox.css",
-    "./navebox-sw.js": "./lib/navebox-sw.js"
+    "./navebox-sw.js": "./lib/navebox-sw.js",
+    "./runtime/*": "./lib/runtime/*",
+    "./vite": {
+      "types": "./lib/types/vite-plugin.d.ts",
+      "import": "./lib/vite-plugin.js"
+    }
   },
   "publishConfig": {
     "access": "public",
@@ -44,7 +50,7 @@
   "scripts": {
     "dev": "vite --config vite.demo.config.ts --host 0.0.0.0",
     "dev:runner": "npm --workspace @pedrobef/navebox-runner run dev",
-    "build:client": "vite build --config vite.config.ts && vite build --config vite.plugin.config.ts && tsc -p tsconfig.build.json",
+    "build:client": "vite build --config vite.config.ts && vite build --config vite.kernel.config.ts && vite build --config vite.plugin.config.ts && tsc -p tsconfig.build.json",
     "build:runner": "npm --workspace @pedrobef/navebox-runner run build",
     "build": "npm run build:client && npm run build:runner",
     "typecheck:client": "tsc --noEmit",
@@ -53,8 +59,9 @@
     "test": "vitest run",
     "test:unit": "vitest run",
     "test:e2e": "playwright test",
+    "test:consumer": "node scripts/test-vite-consumer.mjs",
     "test:watch": "vitest",
-    "check": "npm run typecheck && npm run test && npm run build",
+    "check": "npm run typecheck && npm run test && npm run build && npm run test:consumer",
     "pack:local": "npm run check && npm pack --pack-destination ./release"
   },
   "keywords": [

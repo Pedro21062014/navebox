@@ -37,8 +37,8 @@ export class CompatNodeEngine implements BrowserNodeEngine {
       );
     }
     this.setStatus('booting');
-    this.emit('system', 'Carregando kernel Node compatível sob demanda…');
-    this.kernel ??= await import('../kernel/index');
+    this.emit('system', 'Carregando kernel Node pré-compilado sob demanda…');
+    this.kernel ??= await this.loadKernel();
     this.vfs = new this.kernel.VirtualFS();
     this.files = files.map((file) => ({ ...file }));
     for (const file of this.files) this.writeToVfs(file.path, file.content);
@@ -148,6 +148,26 @@ export class CompatNodeEngine implements BrowserNodeEngine {
     const relative = path.replace(/^\/+/, '');
     const url = new URL(`http://navebox.local/__virtual__/${this.currentServer.port}/${relative}`);
     return handler(new Request(url, init));
+  }
+
+  private async loadKernel(): Promise<Kernel> {
+    if (this.options.kernelLoader) {
+      return await this.options.kernelLoader() as Kernel;
+    }
+
+    const packagedKernelPath = './runtime/kernel.js';
+    const runtimeUrl = this.options.kernelUrl ?? (typeof window !== 'undefined'
+      ? '/navebox-runtime/kernel.js'
+      : (Reflect.construct(URL, [packagedKernelPath, import.meta.url]) as URL).href);
+    try {
+      return await import(/* @vite-ignore */ runtimeUrl) as Kernel;
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : String(error);
+      throw new Error(
+        `Não foi possível carregar o kernel Node em ${runtimeUrl}. `
+        + `Adicione naveboxPlugin() ao Vite ou configure nodeOptions.kernelUrl. ${detail}`,
+      );
+    }
   }
 
   private async exec(command: string): Promise<NodeRunResult> {
